@@ -1,0 +1,191 @@
+def Stabilizer_binary_adder(gate_number):
+
+    Flip1 = []
+    Phase1 = []
+    I = ["|"]
+    Pauli_gates1 = ["x", "y", "z", "i"]
+    gate_count1 = 0
+    print("Enter in some Pauli gates")
+    print("Pauli gates are x, y, z and i")
+    while gate_count1 < gate_number:
+        user_input1 = (input("Type in a Pauli gate : "))
+        if user_input1 not in Pauli_gates1:
+            print("Invalid choice, choose x, y, z or i")
+            gate_count1 += 0
+        if user_input1 == Pauli_gates1[0]:
+            Flip1.append(1)
+            Phase1.append(0)
+            gate_count1 += 1
+        elif user_input1 == Pauli_gates1[1]:
+            Flip1.append(1)
+            Phase1.append(1)
+            gate_count1 += 1
+        elif user_input1 == Pauli_gates1[2]:
+            Flip1.append(0)
+            Phase1.append(1)
+            gate_count1 += 1
+        elif user_input1 == Pauli_gates1[3]:
+            Flip1.append(0)
+            Phase1.append(0)
+            gate_count1 += 1
+        if gate_count1 == gate_number:
+            break
+    print("Below combines the bit flip errors and phase flip errors")
+    print("Total stabilizer binary representation for first system is: ", Flip1+I+Phase1)
+
+    Flip2 = []
+    FlipSum = []
+    Phase2 = []
+    PhaseSum = []
+    Pauli_gates2 = ["x", "y", "z", "i"]
+    gate_count2 = 0
+    print("Now enter in Pauli gates for the second system")
+    while gate_count2 < gate_number:
+        user_input2 = (input("Pauli gate: "))
+        if user_input2 not in Pauli_gates2:
+            print("Invalid choice, choose x, y, z or i")
+            gate_count2 += 0
+        if user_input2 == Pauli_gates2[0]:
+            Flip2.append(1)
+            Phase2.append(0)
+            gate_count2 += 1
+        elif user_input2 == Pauli_gates2[1]:
+            Flip2.append(1)
+            Phase2.append(1)
+            gate_count2 += 1
+        elif user_input2 == Pauli_gates2[2]:
+            Flip2.append(0)
+            Phase2.append(1)
+            gate_count2 += 1
+        elif user_input2 == Pauli_gates2[3]:
+            Flip2.append(0)
+            Phase2.append(0)
+            gate_count2 += 1
+        if gate_count2 == gate_number:
+            break
+
+    print("Total stabilizer binary representation for second system is: ", Flip2+I+Phase2)
+
+    for (i,j) in zip(Flip1, Flip2):
+        FlipSum.append((i+j)% 2)
+    for (i,j) in zip(Phase1, Phase2):
+        PhaseSum.append((i+j)% 2)
+    print("Total representation from product (using modulus 2) is: ", FlipSum+I+PhaseSum)
+
+
+def stab_binary_to_braket(stab_binary_string):
+    braket_string = []
+    test=0
+    jtracker=0
+    for i in range(len(stab_binary_string)):
+        if stab_binary_string[i] == "x":
+            braket_string.append("+")
+        elif stab_binary_string[i] == "-x":
+            braket_string.append("-")
+        elif stab_binary_string[i] == "y":
+            braket_string.append("i")
+        elif stab_binary_string[i] == "-y":
+            braket_string.append("j")
+            jtracker=1
+        elif stab_binary_string[i] == "z":
+            braket_string.append("0")
+        elif stab_binary_string[i] == "-z":
+            braket_string.append("1")
+        elif stab_binary_string[i] == "i":
+            test=1
+            braket_string.append("_")
+        else:
+            test=2
+            break
+    if test==0:
+        print("|"+"".join(braket_string)+">")
+        if jtracker==1:
+            print("Note: j = -i, since it is difficult visually to tell apart the states -XY and -Y otherwise")
+    elif test==1:
+        print("I does not correlate to a specific input state")
+        print("The stabilizer state (otherwise) is: ", "|"+"".join(braket_string)+">")
+    elif test==2:
+        print("Error: Unknown input detected")
+        print("Please use x, y, and z as inputs")
+
+def stab_binary_to_braket(stab_binary_string):
+    braket_string = []
+    test=0
+    jtracker=0
+    for i in range(len(stab_binary_string)):
+        if stab_binary_string[i] == "x":
+            braket_string.append("+")
+        elif stab_binary_string[i] == "-x":
+            braket_string.append("-")
+        elif stab_binary_string[i] == "y":
+            braket_string.append("i")
+        elif stab_binary_string[i] == "-y":
+            braket_string.append("j")
+            jtracker=1
+        elif stab_binary_string[i] == "z":
+            braket_string.append("0")
+        elif stab_binary_string[i] == "-z":
+            braket_string.append("1")
+        elif stab_binary_string[i] == "i":
+            test=1
+            braket_string.append("_")
+        else:
+            test=2
+            break
+    if test==0:
+        print("|"+"".join(braket_string)+">")
+        if jtracker==1:
+            print("Note: j = -i, since it is difficult visually to tell apart the states -XY and -Y otherwise")
+    elif test==1:
+        print("I does not correlate to a specific input state")
+        print("The stabilizer state (otherwise) is: ", "|"+"".join(braket_string)+">")
+    elif test==2:
+        print("Error: Unknown input detected")
+        print("Please use x, y, and z as inputs")
+
+def count_logical_errors(circuit, num_shots: int) -> int:  #import stim required outside fcn  #error rate param part of circuit
+    import pymatching
+    import sinter
+    num_detectors = circuit.num_detectors
+    num_observables = circuit.num_observables
+
+    sampler = circuit.compile_detector_sampler()
+    detection_events, observable_flips = sampler.sample(num_shots, separate_observables=True)
+
+    detector_error_model = circuit.detector_error_model(decompose_errors=True)
+
+    predictions = sinter.predict_observables(
+        dem=detector_error_model,
+        dets=detection_events,
+        decoder='pymatching',)
+    num_errors = 0
+    for actual_flip, predicted_flip in zip(observable_flips, predictions):
+        if not np.array_equal(actual_flip, predicted_flip):
+            num_errors += 1
+    
+    print("there were", num_logical_errors, "logical errors out of", num_shots, "shots")
+
+def simulate_results_qiskit(circuit,shots) #runs "circuit" shots number of times and outputs results and frequency of each
+    from qiskit import Aer
+    backend_sim = Aer.get_backend('qasm_simulator')
+    job_sim = backend_sim.run(circuit, shots)
+    result_sim = job_sim.result()
+    counts = result_sim.get_counts(circuit)
+    print(counts)
+
+def outer_product(state_1, state_2):
+    A = np.outer(state_1,state_2)
+    return A
+
+def inner_product(state_1, state_2):
+    A = 0
+    for i in range(len(state_1)):
+        A += state_1[i] * state_2[i]
+    return A
+
+def normalize_state(a, b):
+    import numpy as np
+    t = a**2 + b**2
+    a1 = a**2/t
+    b1 = b**2/t
+    print(np.array([np.sqrt(a1),np.sqrt(b1),a1+b1]))
