@@ -1,4 +1,4 @@
 # Custom_Functions
-Python functions developed over my time coding
+Some Python functions developed for personal use.
 
-For Quantum Computing and some more general purpose ones.
+For Quantum Computing and some physics applications.
