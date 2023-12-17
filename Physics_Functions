@@ -1,0 +1,194 @@
+def AtomicDecay2(t,N,p1,p2): #t=time(secs), N=no.atoms, p1=decay rate of atom, p2=decay rate of daughter atoms
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import random as random
+    
+    Dt=0
+    Dt_total=0
+    Dt_peak=0
+    Gt=0
+    Gt_total=0
+    atoms=[]
+    decayed=[]
+    decayed2=[]
+    secs=[]
+             
+    for i in range(t): #this runs for every time t to generate results for that specific t
+        secs.append(i)
+        Dt=0
+        for j in range(N): #calcutates number -of daughter atoms created
+            rand =random.uniform(0,1)
+            if rand <= p1:
+                Dt+= 1
+        Gt=0
+        for k in range(Dt_total): #caLcutates number of grandaughter atoms created
+            rand2 =random.uniform(0,1)
+            if rand2 <= p2:
+                Gt+=1
+                
+        N=N-Dt #new number of parent atoms.
+        Dt_total = Dt_total + Dt - Gt #total of daughter atoms
+        Gt_total = Gt_total + Gt #total of grandaughter atoms
+        atoms.append(N)
+        decayed.append(Dt_total)
+        decayed2.append(Gt_total)
+    
+    if Dt_total > Dt_peak: #code to find peak of daughter atoms
+        Dt_peak = Dt_total
+    
+    plt.plot(secs, atoms)
+    plt.plot(secs, decayed)
+    plt.plot(secs, decayed2)
+    plt.xlabel("Time (seconds) ")
+    plt.ylabel("Number of Atoms")
+    plt.title("Numbers of Atoms vs Time")
+    plt.show()
+    
+    print("Estimated Daughter Molecule Population Peak = " +str(Dt_peak))
+    return Dt_peak
+
+def AtomicDecay(t,N,p): #t=time in s, N=no. atoms, p=decay prob, e.g D(150, 100000, 0.05)
+    import numpy as np
+    import matplotlib .pyplot as pit
+    import random as random
+    #defininng constants
+    atoms=[]
+    decayed=[]
+    secs=[]
+    halfLife=0
+    count=0
+    N0=N
+    closest=N0 #aLways start at more than half N0
+    for i in range(t): #this will repeat every second
+        count=0
+        for j in range(N):
+            rand =random.uniform(0,1) #generate random no. from 0 to 1
+            if rand <= p: #checks, if this random number will cause atomic decay
+                count +=1 
+        N = N - count
+        atoms . append(N)
+        # estimate for half-life
+        pedf = (abs(((N - (N0/2))))/(N0/2))
+        if ( pedf <= closest ): # repeats until condition is satisfied (closest is found)
+            closest= pedf
+            halfLife=i
+    for x in range(t):
+        decayed.append((N0 - atoms[x]))
+        secs.append(x)
+
+    #defining the graph
+    plt.plot (secs, atoms )
+    plt.plot(secs, decayed)
+    plt.axvline (x=halfLife)
+    plt.xlabel ("Time (seconds)")
+    plt.ylabel("Number of Atoms " )
+    plt. title("Number of Atoms vs Time")
+    plt.show()
+    #outputting halfLife
+    print("Estimated Halflife (inseconds) = " +str(halfLife))
+
+def exitFlux(p,emitted,n): #thickness in no. atoms to reduce incident flux to whatever we require (variable "emitted"). p=absorption prob, n=no. neutrons
+    import numpy as np
+    import matplotlib. pyplot as plt
+    import random as random
+    percentBlocked = emitted*n
+    thickness=1   #starts with 1 atom thickness
+    for i in range(1000): #wiLl repeat Less than the 1000 times due to the break function
+        count = 0
+        for j in range(n):
+            rand3 = random.uniform(0,1)
+            if rand3 < p:
+                count += 1
+            n=n - count
+            if n < percentBlocked:
+                break #stops the [oop once we hit desired effectiveness
+            thickness +=1 #another atom is added only if n is stilt greater than the % emitted we want
+    return thickness
+
+def tranSmittedAtoms(B,n,p): #B=range of atoms, n= no. atoms, p= absorb prob
+    import numpy as np
+    import matplotlib. pyplot as plt
+    import random as random
+    xArray= [ ]
+    yArray= [ ]
+    for i in range(B):
+        transmitted = 0 #number of particles transmitted and blocked is initially zero
+        blocked =0
+        for j in range(n):
+            rand4 = random.uniform(0,1)
+            if rand4 < p: #to test if each particles is absorbed or not
+                blocked +=1
+        n=n-blocked
+        xArray.append(i)
+        yArray.append(n) #populating the arrays at each step
+    
+    plt.plot(xArray, yArray)
+    plt.xlabel("Number of Atoms (B)")
+    plt.ylabel("Number of Transmitted Neutrons")
+    plt.title("Transmitted Neutrons vs Number of Atoms (B)")
+    plt.show()
+
+    return
+
+def Integral_function(f,a,b,N): #f= the function to integrate, i.e. f=x**3, from a to b, N steps
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import scipy.integrate as integrate
+    import time
+    import random
+    
+    ysum=0
+    for i in range(N):
+        ysum += f((a+ (i*((b-a)/N))))
+    return (b-a)/N*ysum
+
+def plot_data(datafile, title, xlabel, ylabel):
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    #open the file, whivh is a required global variable. It will look something like this:
+    #datafile = open("Temperaturedata.txt" , "r")
+
+    #read the file
+    linetxt = datafile.readlines()
+
+    #initiate both arrays
+    Xvalues = []; Yvalues = []
+
+    #append data into arrays
+    for line in linetxt:
+        x, y = line.split (', ', 1)
+        Xvalues.append(float(x))
+        Yvalues.append(float(y))
+
+    #plot error bars
+    Yerror = 0.25
+    plt.errorbar(Xvalues,Yvalues,Yerror,fmt="ro",capsize=5)
+    plt.title(str(title))
+    plt.xlabel(str(xlabel))
+    plt.ylabel(str(ylabel))
+
+    #find slope and intercept using polyfit
+    m,c = np.polyfit(Xvalues,Yvalues,1)
+
+def PowerSeriesArcsin(x):
+    import numpy as np
+    accuracy = 1e-12
+    
+    #define our variables for term 0
+    n = 0
+    Tn = x
+    #Tn denotes the nth term
+    powerseries = Tn
+    
+    #use while loop to repeat as required
+    while (abs(Tn / powerseries) > accuracy):
+        n = n+1
+        Tn = Tn * (( 2 * n - 1 )**2)/( 2 * n * ((2 * n + 1)(x**2)))
+        powerseries = powerseries + Tn
+    return(powerseries)
+        
+    #to print number of terms required to get suitable accuracy
+    print("number of terms in series =", n)
+    
+    print("power series of arcsin(x) =", powerseries)
